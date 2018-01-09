@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, minimal-ui">
+  <style>
+
+    /* fallback */
+    @font-face {
+      font-family: 'Material Icons';
+      font-style: normal;
+      font-weight: 400;
+      src: url(icons.woff2) format('woff2');
+    }
+
+    .material-icons {
+      font-family: 'Material Icons';
+      font-weight: normal;
+      font-style: normal;
+      font-size: 24px;
+      line-height: 1;
+      letter-spacing: normal;
+      text-transform: none;
+      display: inline-block;
+      white-space: nowrap;
+      word-wrap: normal;
+      direction: ltr;
+      -webkit-font-feature-settings: 'liga';
+      -webkit-font-smoothing: antialiased;
+    }
+
+  </style>
+  <link href="vuetify.min.css" rel="stylesheet">
+</head>
+<body>
+<div id="app">
+  <v-app>
+    <v-toolbar
+        color="teal"
+        dark
+        dense
+        fixed
+        flat
+        app
+        clipped-right
+    >
+
+      <v-toolbar-side-icon @click.stop="drawer = !drawer"></v-toolbar-side-icon>
+      <v-toolbar-title>{{ $store.state.title }}</v-toolbar-title>
+      <v-spacer></v-spacer>
+
+      <v-btn icon title="Find">
+        <v-icon>search</v-icon>
+      </v-btn>
+      <v-btn icon title="Publish">
+        <v-icon>cloud_upload</v-icon>
+      </v-btn>
+      <v-btn icon title="Refresh Build">
+        <v-icon>refresh</v-icon>
+      </v-btn>
+      <v-btn icon title="Return to Website">
+        <v-icon>home</v-icon>
+      </v-btn>
+    </v-toolbar>
+    <v-navigation-drawer
+        fixed
+        v-model="drawer"
+        :stateless="left"
+        app
+    >
+      <v-list dense>
+        <v-list-tile>
+          <v-list-tile-content>
+            <v-list-tile-title>Collections</v-list-tile-title>
+          </v-list-tile-content>
+        </v-list-tile>
+        <v-divider></v-divider>
+        <v-list-tile v-for="model in models" @click="" :key="model.title">
+          <v-list-tile-action>
+            <v-icon>dashboard</v-icon>
+          </v-list-tile-action>
+          <v-list-tile-content>
+            <v-list-tile-title>{{model.title}}</v-list-tile-title>
+          </v-list-tile-content>
+        </v-list-tile>
+      </v-list>
+    </v-navigation-drawer>
+    <v-content>
+      <v-container fluid fill-height pa-0>
+        <v-layout>
+          <router-view></router-view>
+        </v-layout>
+      </v-container>
+    </v-content>
+    <!--<v-navigation-drawer-->
+    <!--right-->
+    <!--temporary-->
+    <!--v-model="right"-->
+    <!--fixed-->
+    <!--&gt;</v-navigation-drawer>-->
+    <v-footer color="indigo" class="white--text pa-3" app>
+      <span>Lektor Admin</span>
+      <v-spacer></v-spacer>
+      <span>&copy; {{ new Date().getFullYear() }}</span>
+    </v-footer>
+  </v-app>
+</div>
+
+<script>
+  const CMS = {
+    routes: {
+      top: [],
+      record: []
+    },
+    components: {},
+  }
+</script>
+<script src="vue.js"></script>
+<script src="vue-router.js"></script>
+<script src="vuex.min.js"></script>
+<script src="axios.min.js"></script>
+<script src="vuetify.min.js"></script>
+
+
+<!-- Register Components -->
+<script src="components/page-attachments.js"></script>
+<script src="components/custom-sidebar-widget.js"></script>
+<!-- End of Components -->
+
+<!-- Register Views -->
+
+<!-- Nested First -->
+<script src="views/attachments.js"></script>
+<script src="views/preview.js"></script>
+<script src="views/edit.js"></script>
+<!-- Then Top-Level -->
+<script src="views/index.js"></script>
+<!-- record.js must be last because we need to match all other routes first -->
+<script src="views/record.js"></script>
+<!-- End of Views -->
+
+
+<script>
+  CMS.api = axios.create({
+    baseURL: 'http://localhost:5000/admin/api/'
+  })
+
+  Vue.prototype.$api = CMS.api
+
+  CMS.router = new VueRouter({
+    routes: CMS.routes.top,
+    mode: 'hash',
+  })
+
+  CMS.store = new Vuex.Store({
+    state: {
+      title: 'Administration',
+      site: 'http://localhost:5000'
+    },
+    mutations: {
+      setTitle(state, payload) {
+        state.title = payload.title
+      }
+    }
+  })
+
+  CMS.app = new Vue({
+    store: CMS.store,
+    router: CMS.router,
+    el: '#app',
+    data() {
+      return {
+        drawer: null,
+        drawerRight: false,
+        right: null,
+        left: null,
+        searchQuery: '',
+        searchLoading: false,
+        searchResults: [],
+        searchSelect: null,
+        models: [
+          {title: 'Pages'},
+          {title: 'Events'},
+        ]
+      }
+    },
+    watch: {
+      searchQuery(val) {
+        val && this.performSearch(val)
+      }
+    },
+    methods: {}
+  })
+</script>
+</body>
+</html>
