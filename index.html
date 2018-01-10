@@ -43,15 +43,14 @@
         flat
         app
         clipped-right
+        extended
     >
-
+      <cms-record-toolbar slot="extension" v-if="$store.state.recordinfo.path"></cms-record-toolbar>
       <v-toolbar-side-icon @click.stop="drawer = !drawer"></v-toolbar-side-icon>
       <v-toolbar-title>{{ $store.state.title }}</v-toolbar-title>
       <v-spacer></v-spacer>
 
-      <v-btn icon title="Find">
-        <v-icon>search</v-icon>
-      </v-btn>
+      <cms-search-dialog></cms-search-dialog>
       <v-btn icon title="Publish">
         <v-icon>cloud_upload</v-icon>
       </v-btn>
@@ -112,7 +111,10 @@
       top: [],
       record: []
     },
+    mixins: {},
     components: {},
+    widgets: {},
+    toolbarActions: []
   }
 </script>
 <script src="vue.js"></script>
@@ -121,14 +123,50 @@
 <script src="axios.min.js"></script>
 <script src="vuetify.min.js"></script>
 
+<!-- Init -->
+<script>
+  CMS.api = axios.create({
+    baseURL: 'http://localhost:5000/admin/api/'
+  })
+  Vue.prototype.$api = CMS.api
+</script>
+
+
+<!-- Store -->
+<script src="store/store.js"></script>
+
+<!-- Mixins -->
+<script>
+  CMS.mixins.record = {
+    computed: {
+      recordinfo() { return CMS.store.state.recordinfo },
+      pathinfo() { return CMS.store.state.pathinfo},
+      rawrecord() { return CMS.store.state.rawrecord },
+    }
+  }
+</script>
+
+<!-- Register Widgets -->
+<script src="widgets/primitive.js"></script>
+<script src="widgets/multi.js"></script>
+<script src="widgets/fake.js"></script>
+
+<!-- Custom -->
+
+<!-- Flow comes last -->
+<script src="widgets/flow.js"></script>
+<!-- End of Widgets -->
+
 
 <!-- Register Components -->
+<script src="components/search.js"></script>
 <script src="components/page-attachments.js"></script>
 <script src="components/custom-sidebar-widget.js"></script>
+<script src="components/record-toolbar.js"></script>
 <!-- End of Components -->
 
-<!-- Register Views -->
 
+<!-- Register Views -->
 <!-- Nested First -->
 <script src="views/attachments.js"></script>
 <script src="views/preview.js"></script>
@@ -141,27 +179,13 @@
 
 
 <script>
-  CMS.api = axios.create({
-    baseURL: 'http://localhost:5000/admin/api/'
-  })
 
-  Vue.prototype.$api = CMS.api
+
+
 
   CMS.router = new VueRouter({
     routes: CMS.routes.top,
     mode: 'hash',
-  })
-
-  CMS.store = new Vuex.Store({
-    state: {
-      title: 'Administration',
-      site: 'http://localhost:5000'
-    },
-    mutations: {
-      setTitle(state, payload) {
-        state.title = payload.title
-      }
-    }
   })
 
   CMS.app = new Vue({
@@ -184,11 +208,7 @@
         ]
       }
     },
-    watch: {
-      searchQuery(val) {
-        val && this.performSearch(val)
-      }
-    },
+
     methods: {}
   })
 </script>

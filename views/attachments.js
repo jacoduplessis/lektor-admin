@@ -2,18 +2,18 @@
 
   const component = {
     name: 'attachments-view',
-    props: ['pathinfo', 'rawrecord', 'recordinfo'],
+    mixins: [CMS.mixins.record],
     template: `
         <v-container fluid grid-list-md class="grey lighten-4">
         <v-layout row wrap>
-        <v-flex xs4 v-for="attachment in attachments" :key="attachment.id">
+        <v-flex xs3 v-for="attachment in attachments" :key="attachment.id">
         <v-card>
         <v-card-media
           v-if="attachment.type === 'image'"
           :src="$store.state.site + attachment.path"
           height="200px"
         ></v-card-media>
-      <v-container fluid fill-height style="height: 200px" class="grey lighten-4">
+      <v-container fluid fill-height style="height: 200px" class="grey lighten-4" v-else>
         <v-layout justify-center align-center>
             <span style="font-size: 4rem">.{{attachment.extension}}</span>
         </v-layout>
@@ -35,7 +35,7 @@
     `,
     computed: {
       attachments() {
-        if (this.recordinfo) return this.recordinfo.attachments.map(a => {
+        if (this.recordinfo && this.recordinfo.attachments) return this.recordinfo.attachments.map(a => {
           const parts = a.path.split('.')
           if (parts.length === 0) return '---'
           a.extension = parts[parts.length-1].toUpperCase()
